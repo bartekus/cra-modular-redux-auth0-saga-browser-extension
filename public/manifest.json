@@ -1,7 +1,11 @@
 {
-  "name": "musescape",
+  "name": "CRA Extension",
   "version": "1.0.0",
   "manifest_version": 2,
+  "options_page": "options.html",
+  "background": {
+    "page": "background.html"
+  },
   "browser_action": {
     "default_popup": "index.html"
   }
