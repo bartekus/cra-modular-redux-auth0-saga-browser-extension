@@ -19,7 +19,7 @@ const colors = require("colors/safe");
 const ExtensionReloader = require("webpack-extension-reloader");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const popupName = 'main';
+const popupName = 'popup';
 const optionsName = 'options';
 const backgroundName = 'background';
 
@@ -30,7 +30,7 @@ const config = configFactory("development");
 // Since we need more entries than one we need to redefine entry as an object instead of array
 config.entry = {
   [backgroundName]: path.join(__dirname, "..", "src", "background.ts"),
-  [optionsName]: path.join(__dirname, "..", "src", "options.tsx"),
+  [optionsName]: path.join(__dirname, "..", "src", "options.ts"),
   [popupName]: path.join(__dirname, "..", "src", "index.tsx"),
 };
 
