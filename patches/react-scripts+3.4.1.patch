@@ -1,0 +1,208 @@
+diff --git a/node_modules/react-scripts/config/paths.js b/node_modules/react-scripts/config/paths.js
+index 11d81b7..f095618 100644
+--- a/node_modules/react-scripts/config/paths.js
++++ b/node_modules/react-scripts/config/paths.js
+@@ -63,7 +63,11 @@ module.exports = {
+   appBuild: resolveApp('build'),
+   appPublic: resolveApp('public'),
+   appHtml: resolveApp('public/index.html'),
++  appBackgroundHtml: resolveApp('public/background.html'),
++  appOptionsHtml: resolveApp('public/options.html'),
+   appIndexJs: resolveModule(resolveApp, 'src/index'),
++  appBackgroundJs: resolveModule(resolveApp, 'src/background'),
++  appOptionsJs: resolveModule(resolveApp, 'src/options'),
+   appPackageJson: resolveApp('package.json'),
+   appSrc: resolveApp('src'),
+   appTsConfig: resolveApp('tsconfig.json'),
+@@ -85,7 +89,11 @@ module.exports = {
+   appBuild: resolveApp('build'),
+   appPublic: resolveApp('public'),
+   appHtml: resolveApp('public/index.html'),
++  appBackgroundHtml: resolveApp('public/background.html'),
++  appOptionsHtml: resolveApp('public/options.html'),
+   appIndexJs: resolveModule(resolveApp, 'src/index'),
++  appBackgroundJs: resolveModule(resolveApp, 'src/background'),
++  appOptionsJs: resolveModule(resolveApp, 'src/options'),
+   appPackageJson: resolveApp('package.json'),
+   appSrc: resolveApp('src'),
+   appTsConfig: resolveApp('tsconfig.json'),
+@@ -120,7 +128,11 @@ if (
+     appBuild: resolveOwn('../../build'),
+     appPublic: resolveOwn(`${templatePath}/public`),
+     appHtml: resolveOwn(`${templatePath}/public/index.html`),
++    appBackgroundHtml: resolveOwn(`${templatePath}/public/background.html`),
++    appOptionsHtml: resolveOwn(`${templatePath}/public/options.html`),
+     appIndexJs: resolveModule(resolveOwn, `${templatePath}/src/index`),
++    appBackgroundJs: resolveModule(resolveOwn, `${templatePath}/src/background`),
++    appOptionsJs: resolveModule(resolveOwn, `${templatePath}/src/options`),
+     appPackageJson: resolveOwn('package.json'),
+     appSrc: resolveOwn(`${templatePath}/src`),
+     appTsConfig: resolveOwn(`${templatePath}/tsconfig.json`),
+diff --git a/node_modules/react-scripts/config/webpack.config.js b/node_modules/react-scripts/config/webpack.config.js
+index 25840d9..6b9e08f 100644
+--- a/node_modules/react-scripts/config/webpack.config.js
++++ b/node_modules/react-scripts/config/webpack.config.js
+@@ -43,7 +43,7 @@ const appPackageJson = require(paths.appPackageJson);
+ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+ // Some apps do not need the benefits of saving a web request, so not inlining the chunk
+ // makes for a smoother build process.
+-const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
++// const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
+ 
+ const isExtendingEslintConfig = process.env.EXTEND_ESLINT === 'true';
+ 
+@@ -149,35 +149,21 @@ module.exports = function(webpackEnv) {
+       : isEnvDevelopment && 'cheap-module-source-map',
+     // These are the "entry points" to our application.
+     // This means they will be the "root" imports that are included in JS bundle.
+-    entry: [
+-      // Include an alternative client for WebpackDevServer. A client's job is to
+-      // connect to WebpackDevServer by a socket and get notified about changes.
+-      // When you save a file, the client will either apply hot updates (in case
+-      // of CSS changes), or refresh the page (in case of JS changes). When you
+-      // make a syntax error, this client will display a syntax error overlay.
+-      // Note: instead of the default WebpackDevServer client, we use a custom one
+-      // to bring better experience for Create React App users. You can replace
+-      // the line below with these two lines if you prefer the stock client:
+-      // require.resolve('webpack-dev-server/client') + '?/',
+-      // require.resolve('webpack/hot/dev-server'),
+-      isEnvDevelopment &&
+-        require.resolve('react-dev-utils/webpackHotDevClient'),
+-      // Finally, this is your app's code:
+-      paths.appIndexJs,
+-      // We include the app code last so that if there is a runtime error during
+-      // initialization, it doesn't blow up the WebpackDevServer client, and
+-      // changing JS code would still trigger a refresh.
+-    ].filter(Boolean),
++    entry: {
++      background: paths.appBackgroundJs,
++      options: paths.appOptionsJs,
++      popup: paths.appIndexJs,
++    },
+     output: {
+       // The build folder.
+-      path: isEnvProduction ? paths.appBuild : undefined,
++      path: paths.appBuild,
+       // Add /* filename */ comments to generated require()s in the output.
+       pathinfo: isEnvDevelopment,
+       // There will be one main bundle, and one file per asynchronous chunk.
+       // In development, it does not produce real files.
+       filename: isEnvProduction
+         ? 'static/js/[name].[contenthash:8].js'
+-        : isEnvDevelopment && 'static/js/bundle.js',
++        : isEnvDevelopment && 'static/js/[name].bundle.js',
+       // TODO: remove this when upgrading to webpack 5
+       futureEmitAssets: true,
+       // There are also additional JS chunk files if you use code splitting.
+@@ -558,6 +544,62 @@ module.exports = function(webpackEnv) {
+       ],
+     },
+     plugins: [
++      // Generates an `background.html` file with the <script> injected.
++      new HtmlWebpackPlugin(
++        Object.assign(
++          {},
++          {
++            inject: true,
++            template: paths.appBackgroundHtml,
++            filename: 'background.html',
++            excludeChunks: ['popup', 'options'],
++          },
++          isEnvProduction
++            ? {
++              minify: {
++                removeComments: true,
++                collapseWhitespace: true,
++                removeRedundantAttributes: true,
++                useShortDoctype: true,
++                removeEmptyAttributes: true,
++                removeStyleLinkTypeAttributes: true,
++                keepClosingSlash: true,
++                minifyJS: true,
++                minifyCSS: true,
++                minifyURLs: true,
++              },
++            }
++            : undefined
++        )
++      ),
++      // Generates an `options.html` file with the <script> injected.
++      new HtmlWebpackPlugin(
++        Object.assign(
++          {},
++          {
++            inject: true,
++            template: paths.appOptionsHtml,
++            filename: 'options.html',
++            excludeChunks: ['popup', 'background'],
++          },
++          isEnvProduction
++            ? {
++              minify: {
++                removeComments: true,
++                collapseWhitespace: true,
++                removeRedundantAttributes: true,
++                useShortDoctype: true,
++                removeEmptyAttributes: true,
++                removeStyleLinkTypeAttributes: true,
++                keepClosingSlash: true,
++                minifyJS: true,
++                minifyCSS: true,
++                minifyURLs: true,
++              },
++            }
++            : undefined
++        )
++      ),
+       // Generates an `index.html` file with the <script> injected.
+       new HtmlWebpackPlugin(
+         Object.assign(
+@@ -565,6 +607,7 @@ module.exports = function(webpackEnv) {
+           {
+             inject: true,
+             template: paths.appHtml,
++            excludeChunks: ['background', 'options'],
+           },
+           isEnvProduction
+             ? {
+@@ -587,9 +630,9 @@ module.exports = function(webpackEnv) {
+       // Inlines the webpack runtime script. This script is too small to warrant
+       // a network request.
+       // https://github.com/facebook/create-react-app/issues/5358
+-      isEnvProduction &&
+-        shouldInlineRuntimeChunk &&
+-        new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
++      // isEnvProduction &&
++      //   shouldInlineRuntimeChunk &&
++      //   new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
+       // Makes some environment variables available in index.html.
+       // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
+       // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
+@@ -638,9 +681,12 @@ module.exports = function(webpackEnv) {
+             manifest[file.name] = file.path;
+             return manifest;
+           }, seed);
+-          const entrypointFiles = entrypoints.main.filter(
+-            fileName => !fileName.endsWith('.map')
+-          );
++          const entrypointFiles = {};
++          for (const property in entrypoints) {
++            entrypointFiles[property] = entrypoints[property].filter(
++              fileName => !fileName.endsWith('.map')
++            );
++          }
+ 
+           return {
+             files: manifestFiles,
+diff --git a/node_modules/react-scripts/scripts/build.js b/node_modules/react-scripts/scripts/build.js
+index fa30fb0..07998b1 100644
+--- a/node_modules/react-scripts/scripts/build.js
++++ b/node_modules/react-scripts/scripts/build.js
+@@ -222,6 +222,6 @@ function build(previousFileSizes) {
+ function copyPublicFolder() {
+   fs.copySync(paths.appPublic, paths.appBuild, {
+     dereference: true,
+-    filter: file => file !== paths.appHtml,
++    filter: file => file !== paths.appHtml && file !== paths.appBackgroundHtml && file !== paths.appOptionsHtml,
+   });
+ }
