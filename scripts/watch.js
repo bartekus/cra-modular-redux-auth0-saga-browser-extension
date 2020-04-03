@@ -35,11 +35,12 @@ const watcher = compiler.watch({}, function(err) {
       filter: file => file !== paths.appHtml && file !== paths.appBackgroundHtml && file !== paths.appOptionsHtml
     });
     // Report on console the successful build
-    // console.clear();
+    console.clear();
     console.info(colors.green("Compiled successfully!"));
     console.info("Built at", new Date().toLocaleTimeString());
     console.info();
     console.info("Note that the development build is not optimized.");
     console.info("To create a production build, use yarn build.");
+    console.info();
   }
 });
