@@ -1,4 +1,5 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# cra-modular-redux-auth0-saga-browser-extension
+> An example of [Create React App](https://github.com/facebook/create-react-app) browser extension build using modular [Redux](https://github.com/reduxjs/redux) pattern and [Auth0](https://github.com/auth0/auth0.js/) authentication plus [Redux-Saga](https://github.com/redux-saga/redux-saga) for application side effects.
 
 ## Available Scripts
 
