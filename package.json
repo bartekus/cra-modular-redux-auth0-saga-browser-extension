@@ -17,6 +17,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json}'",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -44,9 +45,23 @@
     "webext-redux": "2.1.6"
   },
   "devDependencies": {
+    "husky": "4.2.3",
+    "lint-staged": "10.1.1",
     "patch-package": "6.2.1",
     "postinstall-postinstall": "2.1.0",
+    "prettier": "2.0.2",
     "webpack-extension-reloader": "1.1.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,json}": [
+      "npm run format",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
