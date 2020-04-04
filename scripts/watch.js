@@ -34,8 +34,12 @@ const watcher = compiler.watch({}, function(err) {
       dereference: true,
       filter: file => file !== paths.appHtml && file !== paths.appBackgroundHtml && file !== paths.appOptionsHtml
     });
+    // Read extension name and version from manifest
+    const manifest = JSON.parse(fs.readFileSync(`${paths.appPublic}/manifest.json`, 'utf8'));
+
     // Report on console the successful build
     console.clear();
+    console.info(colors.green(`${manifest.name} - ${manifest.version}`));
     console.info(colors.green("Compiled successfully!"));
     console.info("Built at", new Date().toLocaleTimeString());
     console.info();

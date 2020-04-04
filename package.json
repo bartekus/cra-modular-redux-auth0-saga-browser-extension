@@ -18,6 +18,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write 'src/**/*.{ts,tsx,json}'",
+    "commit": "node utils/commit",
     "postinstall": "patch-package && node utils/postinstall"
   },
   "dependencies": {
