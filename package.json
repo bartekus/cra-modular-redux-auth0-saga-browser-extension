@@ -1,7 +1,7 @@
 {
   "name": "cra-modular-redux-auth0-saga-browser-extension",
   "homepage": "/",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "license": "MIT",
   "author": "Bartek Kus <bartekus@gmail.com> (https://bartekus.com/)",

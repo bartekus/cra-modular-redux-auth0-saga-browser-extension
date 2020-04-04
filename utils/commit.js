@@ -15,7 +15,7 @@ async function version(versionType) {
 
 async function updateManifest(npmVersion) {
   const manifest = await JSON.parse(fs.readFileSync(`${paths.appPublic}/manifest.json`, 'utf8'));
-  manifest.version = npmVersion;
+  manifest.version = npmVersion.substring(1);
   await fs.writeFileSync(`${paths.appPublic}/manifest.json`, JSON.stringify(manifest, null, 2));
   return null;
 }
@@ -36,7 +36,7 @@ const run = async () => {
 
     const npmVersion = await version(versionType);
     await updateManifest(npmVersion.trim());
-    await spawn('git', ['add', 'package.json', 'package-lock.json', `${paths.appPublic}/manifest.json`], { stdio: 'inherit' });
+    await spawn('git', ['add', 'package.json', 'yarn.lock', `${paths.appPublic}/manifest.json`], { stdio: 'inherit' });
     await spawn('git', ['commit', '-m', gitMessage.trim()], { stdio: 'inherit' });
     await spawn('git', ['tag', npmVersion.trim()], { stdio: 'inherit' });
     const currentBranch = await branch();
