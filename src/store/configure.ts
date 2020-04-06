@@ -7,7 +7,7 @@ import rootReducer from './reducers';
 import rootSaga from './sagas';
 
 // @ts-ignore
-const configureStore = ({ initialState }) => {
+const configureStore = ({ initialState, services }) => {
   // @ts-ignore
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose;
 
@@ -16,7 +16,6 @@ const configureStore = ({ initialState }) => {
 
   const store = createStore(rootReducer, initialState, enhancer);
 
-  const services = {};
   let sagaTask = sagaMiddleware.run(rootSaga, services);
 
   if (module.hot) {
